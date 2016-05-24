@@ -15,10 +15,6 @@ from spyne.decorator import rpc, srpc
 from spyne.service import ServiceBase, ServiceBaseMeta
 from spyne.server.wsgi import WsgiApplication
 
-from secwall import wsse
-from secwall.core import SecurityException
-
-from lxml import etree
 
 from spyne.model.fault import Fault
 # TODO: use native spynes' InvalidCredentialsError (after ver > 2.10 release)
@@ -60,33 +56,11 @@ class SpyneController(object):
 class SpyneService(ServiceBase):
     __target_namespace__ = 'tns'
     __service_url_path__ = '/rpc'
-    
-class FSWSSE(wsse.WSSE):
-    def check_nonce(self, wsse_nonce, now, nonce_freshness_time):
-        pass # TODO
 
-def _on_method_call(ctx):
-    logging.debug('request: {0}'.format(ctx.in_object))
-    if ctx.service_class.__in_protocol__.__class__.__name__ == 'Soap11':
-        logging.debug('request: {0}'.format(etree.tostring(ctx.in_document, pretty_print=True)))
-        if hasattr(ctx.service_class, '__wsse_conf__'):
-            def_conf = {
-                'reject-empty-nonce-creation': False,
-            }
-            wsse_conf = dict(def_conf.items() + ctx.service_class.__wsse_conf__.items())
-            for k, v in wsse_conf.items():
-                wsse_conf['wsse-pwd-{0}'.format(k)] = v
-            try:               
-                auth_res = FSWSSE().validate(ctx.in_document, wsse_conf) 
-            except SecurityException as e:
-                logging.exception(e)
-                raise InvalidCredentialsError(e.description)
-    return
 
 def _on_method_return_object(ctx):
     logging.debug('response: {0}'.format(ctx.out_object))
 
-SpyneService.event_manager.add_listener('method_call', _on_method_call)
 SpyneService.event_manager.add_listener('method_return_object', _on_method_return_object)
 
 

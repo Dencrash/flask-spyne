@@ -1,6 +1,6 @@
 from setuptools import setup
 
-requirements = ['flask', 'spyne', 'sec-wall', 'pyyaml']
+requirements = ['flask', 'spyne', 'pyyaml']
 
 setup(
     author='Robert Ayrapetyan',
