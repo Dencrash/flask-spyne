@@ -1,6 +1,6 @@
 from setuptools import setup
 
-requirements = ['flask', 'spyne', 'pyyaml']
+requirements = ['flask', 'spyne', 'pyyaml', 'lxml', 'suds-jurko', 'requests']
 
 setup(
     author='Robert Ayrapetyan',
